@@ -1,0 +1,6 @@
+{
+  "region": "oss-cn-hangzhou",
+  "bucket": "your-public-bucket",
+  "accessKeyId": "replace-with-access-key-id",
+  "accessKeySecret": "replace-with-access-key-secret"
+}
