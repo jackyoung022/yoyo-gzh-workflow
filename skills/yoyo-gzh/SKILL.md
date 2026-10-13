@@ -1,6 +1,6 @@
 ---
 name: yoyo-gzh
-description: Analyze a user-provided Chinese article topic, research it when needed, develop a cross-disciplinary angle, and produce a publishable WeChat official account package plus a detailed blog Markdown draft. Use when the user asks to turn a topic, idea, headline, trend, question, or rough notes into a question-led article package with social, humanities, economic, and technology analysis, Khazix-style polishing, YOYO-style illustrations, Aliyun OSS image URLs, gzh-design WeChat HTML layout, and final WeChat/blog Markdown files.
+description: Analyze a Chinese article topic and produce a publishable WeChat package with a question-led WeChat draft, detailed blog draft, article-specific YOYO cover, YOYO v2 body illustrations with optional numbered hand-drawn styles, OSS image URLs, and copy-ready WeChat HTML. Use when the user asks to turn a topic, idea, headline, trend, question, or rough notes into a complete WeChat and blog publication package.
 ---
 
 # YOYO GZH
@@ -12,7 +12,8 @@ Turn one article topic into a two-channel publication package:
 - a WeChat Markdown draft around 1500 Chinese characters
 - a WeChat HTML layout generated with `gzh-design`
 - a more detailed blog Markdown draft
-- YOYO-style article illustrations uploaded to Aliyun OSS
+- an article-specific WeChat cover with the title and YOYO IP in a clear left-right composition
+- YOYO v2 article illustrations, optionally fused with a `001`–`279` numbered hand-drawn style, uploaded to Aliyun OSS
 - final Markdown files with OSS image URLs already embedded
 
 Use this skill as an orchestration workflow. It relies on companion skills for writing voice, illustration generation, image hosting, and WeChat visual layout.
@@ -21,8 +22,9 @@ Use this skill as an orchestration workflow. It relies on companion skills for w
 
 Load and follow these skills during execution:
 
-- `khazix-writer` for final article voice, rhythm, hooks, and self-check.
-- `yoyo-illustrations` for planning and generating 16:9 Chinese article illustrations.
+- `human-writing` for final article voice, factual-material checks, revision, and self-check.
+- `imagegen` for the YOYO cover. Use the canonical YOYO reference assets from `yoyo-illustrations` and the built-in image generation mode unless the user explicitly chooses another supported path.
+- `yoyo-illustrations` v2 as the sole planner and generator for 16:9 body illustrations. It owns built-in `imagegen`, YOYO identity references, optional numbered hand-drawn style resolution, blend strength, dual-reference isolation, and image QA.
 - `aliyun-oss-upload` for uploading each generated image and obtaining public URLs.
 - `gzh-design` for turning the final WeChat Markdown into copy-ready WeChat HTML.
 
@@ -40,6 +42,7 @@ Extract or infer:
 - likely controversy or tension
 - preferred point of view if the user supplied one
 - requested `gzh-design` theme, if any
+- requested body-illustration style (`native-yoyo` or hand-drawn style `001`–`279`) and blend strength (`safe`, `balanced`, or `full`), if any
 
 Ask only when a missing detail would materially change the article. Otherwise make a reasonable assumption and state it briefly.
 
@@ -87,30 +90,65 @@ Then write the blog version:
 - 3-6 body illustrations when the length supports them
 - include source links or a short references section when factual claims rely on external research
 
-### 5. Polish With Khazix Style
+### 5. Polish With Human-Writing
 
-Apply `khazix-writer` after the core argument is already formed. Preserve the user's intended stance and facts.
+Apply `human-writing` after the core argument and its supporting material are already formed. Preserve the user's intended stance and facts. For non-fiction, do not invent personal experiences, scenes, quotations, or data to make the draft feel more vivid.
 
 Emphasize:
 
-- "有见识的普通人在认真聊一件打动他的事"
-- direct judgment before abstract explanation
-- lively human rhythm, short paragraphs, and hooks between sections
-- honesty about uncertainty and tradeoffs
+- a concrete speaker who knows what they know and acknowledges what remains uncertain
+- direct judgment supported by specific, verifiable material
+- natural Chinese rhythm, varied paragraph length, and forward movement between sections
+- honest treatment of uncertainty, tradeoffs, and the limits of the evidence
 
-Respect Khazix language constraints unless the user's publication format requires otherwise.
+Read the task-relevant `human-writing` references before drafting and `references/revision.md` after the first draft. Respect its hard language constraints in the final WeChat and blog drafts, unless the user's publication format requires otherwise.
 
-### 6. Plan and Generate Illustrations
+### 6. Fill the Cover Brief and Generate the YOYO Cover
 
-Use `yoyo-illustrations` on the final article content, not on an early outline.
+Generate one cover for a complete publication package unless the user declines a cover or explicitly requests another cover workflow.
 
-Select image points by cognitive value:
+Read [`references/yoyo-cover.md`](references/yoyo-cover.md) after the final article title and core thesis are stable. Infer and save the cover brief, then generate the cover with `imagegen` using the canonical YOYO reference assets from `yoyo-illustrations`.
 
-- core thesis
-- key contrast
-- mechanism or loop
-- turning point
-- risk or tradeoff
+Required cover composition:
+
+- keep the final article title visible on the cover; preserve its exact wording unless the user explicitly approves different cover text
+- use a left-right layout, with title text on the left and YOYO on the right by default
+- keep the title and YOYO in separate safe areas so neither overlaps, covers, or crowds the other
+- size YOYO's visible figure to about 25%-30% of the canvas width
+- make YOYO perform one article-specific action or interact with one article-specific object that expresses the core tension, consequence, or promise
+- make the cover interesting enough to invite a click through a clear visual question, contrast, or unresolved moment, without misleading clickbait
+
+Do not fall back to the former minimalist big-tech cover system, abstract logo-like anchors, generic technology gradients, or an unrelated mascot pose.
+
+Save the local cover as:
+
+```text
+assets/<slug>-cover.png
+```
+
+Save the filled brief as:
+
+```text
+outputs/<slug>-cover-brief.md
+```
+
+Upload the final cover with `aliyun-oss-upload` and record the public URL in the cover brief. If upload fails, keep the local PNG, report the failure, and do not claim that the cover is publication-ready.
+
+### 7. Plan and Generate Body Illustrations With YOYO v2
+
+Use `yoyo-illustrations` v2 on the final article content, not on an early outline. It is the sole owner of body-illustration prompting and generation: do not assemble a parallel YOYO prompt in this Skill, do not call `imagegen` directly for body images, and do not invoke `handdraw-style-prompter` separately.
+
+Create one unified shot list selected by cognitive value: core thesis, key contrast, mechanism or loop, turning point, and risk or tradeoff. Use 2–4 of the strongest images in the WeChat version; the blog may reuse those and add images up to its 3–6 target. Do not generate duplicate images merely because both drafts use them.
+
+Pass illustration preferences to YOYO v2 unchanged:
+
+- no style specified: use `native-yoyo`
+- numbered style specified: pass the normalized `001`–`279` number
+- numbered style without blend strength: use YOYO v2's default `balanced`
+- explicit `safe`, `balanced`, or `full`: preserve it
+- layout ID such as `SC-008` specified: resolve it as a layout reference, not as a `001`–`279` illustration-style number. Pass its composition guidance to YOYO v2 while preserving YOYO identity and any separate style preference. If the user requests no image text, omit the layout's text slot.
+
+YOYO v2 must use built-in `imagegen`, choose the canonical character reference, add a numbered style reference only when its resolver requires one, and complete its identity/content/style QA before an image is accepted.
 
 Generate separate 16:9 PNG files under:
 
@@ -125,9 +163,9 @@ Use ordered filenames such as:
 02-hidden-mechanism.png
 ```
 
-Do not create decorative filler images. Each image must explain one idea and place YOYO in the core action.
+Do not create decorative filler images. Each image must explain one idea and place YOYO in the core action. Record the accepted rendering mode, style number and name, blend strength, and whether a numbered style reference image was used; these details belong in the final execution report, not in the article captions.
 
-### 7. Upload Images and Embed URLs
+### 8. Upload Images and Embed URLs
 
 Use `aliyun-oss-upload` for every final image. Capture the returned public URL.
 
@@ -139,7 +177,9 @@ Replace local image paths in both Markdown drafts with the OSS URLs:
 
 If upload fails, leave local image paths in the drafts, report the failure, and do not pretend the files are publication-ready.
 
-### 8. Select GZH Theme
+For YOYO body illustrations, retain concise Markdown alt text for accessibility, but render no visible image title or caption beneath the image in the WeChat HTML. An illustration's alt text is not a request for a visible caption.
+
+### 9. Select GZH Theme
 
 Use the user's requested `gzh-design` theme when explicitly specified.
 
@@ -161,7 +201,7 @@ Default decisions:
 - Use `摸鱼绿` when the draft is primarily practical, list-like, or tool-oriented.
 - If two themes both fit, choose the one that matches the article's emotional temperature and report the choice briefly.
 
-### 9. Generate WeChat HTML With GZH Design
+### 10. Generate WeChat HTML With GZH Design
 
 After the final WeChat Markdown has OSS image URLs embedded, use `gzh-design` to produce a copy-ready WeChat HTML preview with the selected theme.
 
@@ -176,7 +216,7 @@ Follow `gzh-design` requirements:
 
 The WeChat Markdown remains one of the final deliverables. The HTML/preview files are additional publishing assets for pasting into the WeChat editor.
 
-### 10. Save Deliverables
+### 11. Save Deliverables
 
 Read `references/output-contract.md` before saving final files.
 
@@ -196,12 +236,19 @@ If the current workspace has a different established output directory, use that 
 Before final response, verify:
 
 - both Markdown files exist
+- the filled cover brief and local cover PNG exist unless the user declined the cover
+- the cover uses the requested ratio and contains the exact final article title with no unapproved extra text
+- the title and YOYO use a clean left-right layout with no overlap; YOYO's visible figure occupies about 25%-30% of the canvas width
+- YOYO matches the canonical IP and performs an article-specific action that creates a clear, truthful reason to click
+- the cover is uploaded to OSS when upload credentials are available
 - the WeChat version is close to 1500 Chinese characters
 - the blog version is more detailed than the WeChat version
 - both titles are question-style or clearly question-led
 - each opening answers the question directly
 - social, humanities, economy, and technology lenses all appear in the analysis
 - generated images are embedded with OSS URLs when upload succeeded
+- every accepted body image passed YOYO v2 identity/content QA and, when applicable, numbered-style QA
+- the final report identifies `native-yoyo` or the numbered style, blend strength, and whether a numbered style reference image was used
 - `gzh-design` theme was selected by user request or the default mapping above
 - WeChat HTML validation passed with 0 ERROR when HTML generation succeeded
 - unresolved missing credentials, failed uploads, failed image generation, or failed HTML layout generation are reported plainly

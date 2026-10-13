@@ -1,0 +1,6 @@
+interface:
+  display_name: "YOYO 配图 v2"
+  short_description: "用 imagegen 生成 YOYO 正文配图，可融合编号手绘画风"
+  default_prompt: "Use $yoyo-illustrations to 为这篇中文文章设计并生成 YOYO 正文配图，可按需融合指定的手绘风格编号。"
+policy:
+  allow_implicit_invocation: true

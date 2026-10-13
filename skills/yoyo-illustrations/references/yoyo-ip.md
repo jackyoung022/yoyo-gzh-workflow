@@ -14,12 +14,18 @@ YOYO 是中文正文配图的固定视觉 IP。
 - **服装**：深海军蓝工装夹克，白色明线与深色干净外轮廓；翻领、居中门襟和三枚浅色圆纽扣；正面左右各一只带盖胸袋，每只一枚浅色扣；袖口与下摆有白色缝线。内搭深色圆领上衣，领口微露。下身为同色直筒长裤和系带深蓝低帮运动鞋，鞋底及鞋带以白色线条表现。
 - **正面标准**：正对镜头，五官、帽章、门襟和双胸袋均左右对称；双臂自然垂下，双脚微分开。任何全身正面姿态都以此比例和服装分区为准。
 - **右侧面标准**：角色面朝画面右方；必须看见长帽檐、鼻梁和下巴轮廓、一只耳朵、一枚眼镜镜片与从耳侧穿过的眼镜腿。夹克保持直筒、短身轮廓，单只袖臂自然垂下；不要把侧面画成三分之二正面或镜像左侧面。
-- **画风固定**：深蓝主填充、近黑色描边、白色高光、浅肤色以及极少量红点；纯色平涂，线宽统一，无渐变、投影、纹理或体积光。
+- **身份色锚点固定**：帽子与工装夹克保持深海军蓝，眼镜与外轮廓保持近黑色，帽章与明线保持白色，小红点保留。原生模式使用纯色平涂、统一线宽、无渐变投影；编号画风模式的表面处理按 `style-dna.md` 的融合强度变化，但不得抹掉这些身份锚点。
 
-### 视觉还原要点（生图提示词中必须包含）
+### 身份还原要点（所有模式必须包含）
 
 ```text
-A compact, youthful male character in a fixed 3.2–3.5-head-tall proportion, with an oversized rounded head about 1.35 times shoulder width, short straight legs, and no feminine features. Pale skin, short dark hair, large rounded rectangular black-rimmed glasses, dark oval eyes, natural thick short eyebrows, a tiny calm mouth, and three short cheek marks on each side. Dark navy baseball cap with a small top button, a wide curved brim with a thin white highlight, and a white-bordered navy rectangular front patch showing the four Chinese characters "平安喜乐" in a 2x2 grid with one tiny red dot. Dark navy work jacket with white stitching, lapels, centered placket with three light buttons, two symmetrical flap chest pockets with one light button each, dark undershirt, straight dark trousers, and dark low-top lace-up sneakers with white line details. Flat vector style with clean near-black outlines, solid navy fills, and white highlights. Calm, slightly shy expression. Preserve the canonical front and right-facing side-profile construction.
+A compact, youthful male character in a fixed 3.2–3.5-head-tall proportion, with an oversized rounded head about 1.35 times shoulder width, short straight legs, and no feminine features. Pale skin, short dark hair, large rounded rectangular black-rimmed glasses, dark oval eyes, natural thick short eyebrows, a tiny calm mouth, and three short cheek marks on each side. Dark navy baseball cap with a small top button, a wide curved brim with a thin white highlight, and a white-bordered navy rectangular front patch showing the four Chinese characters "平安喜乐" in a 2x2 grid with one tiny red dot. Dark navy work jacket with white stitching, lapels, centered placket with three light buttons, two symmetrical flap chest pockets with one light button each, dark undershirt, straight dark trousers, and dark low-top lace-up sneakers with white line details. Calm, slightly shy expression. Preserve the canonical front and right-facing side-profile construction.
+```
+
+原生模式额外加入以下渲染句；编号画风模式不要加入，以免和选定媒介冲突：
+
+```text
+Flat vector style with clean near-black outlines, solid navy fills, and white highlights.
 ```
 
 ## 性格
@@ -65,7 +71,7 @@ A compact, youthful male character in a fixed 3.2–3.5-head-tall proportion, wi
 - 不要让 YOYO 只是站在角落里看。
 - 不要让 YOYO 抢走结构表达。
 - 不要改变核心特征：眼镜、鸭舌帽、深蓝夹克必须保留。
-- 不要画成手绘抖动线条风格（要保持矢量感）。
+- 原生模式不要画成手绘抖动线条；编号画风模式仅按选定融合强度允许线条与媒介变化，仍须保持人物轮廓清楚可辨。
 
 ## 判断标准
 

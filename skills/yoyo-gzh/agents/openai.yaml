@@ -1,0 +1,4 @@
+interface:
+  display_name: "YOYO GZH"
+  short_description: "Draft, cover, and illustrate articles with YOYO v2"
+  default_prompt: "Use $yoyo-gzh to turn this topic into WeChat and blog drafts, an article-specific YOYO cover, YOYO v2 body illustrations, and copy-ready WeChat layout assets."

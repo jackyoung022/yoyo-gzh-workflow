@@ -8,6 +8,7 @@ skills/aliyun-oss-upload/config.json
 
 # Generated publication assets
 assets/*-illustrations/
+assets/*-cover*.png
 outputs/
 
 # Python and macOS noise

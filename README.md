@@ -1,119 +1,120 @@
-# YOYO GZH Publisher
+# YOYO GZH Workflow
 
-将一个中文选题整理为可发布的「公众号 + 博客」双渠道内容包：研究与跨学科分析、问句式选题、卡兹克式润色、YOYO 正文配图、Aliyun OSS 图床，以及可粘贴到微信公众号编辑器的 HTML 排版。
+将一个中文选题整理成「公众号 + 博客」双渠道内容包，完成研究、问句式选题、human-writing 润色、YOYO 封面和正文配图、Aliyun OSS 上传，以及可粘贴到微信公众号编辑器的 HTML 排版。
 
-本仓库是可独立归档和二次开发的工作流包，不包含任何真实 API Key、AccessKey 或个人配置。
+主工作流及其写作、配图依赖同步自本地最新 Skill。完整编排规则见 [yoyo-gzh](skills/yoyo-gzh/SKILL.md)。
 
-## 能产出什么
+## 本次版本更新
 
-每个选题的标准交付物如下：
+- 使用 [human-writing](skills/human-writing/SKILL.md) 替代旧版 khazix-writer，增加事实材料检查和成稿自检。
+- 增加 [YOYO 封面规范](skills/yoyo-gzh/references/yoyo-cover.md)，默认 5:2，标题在左、YOYO 在右，角色宽度约占画布的 25%–30%，动作紧扣文章主题。
+- 正文配图升级为 [YOYO v2](skills/yoyo-illustrations/SKILL.md)，使用内置 imagegen，支持可选的 001–279 编号画风与 safe、balanced、full 融合强度。
+- Markdown 图片 alt 保留可访问性描述；YOYO 正文配图在公众号 HTML 中不显示额外图注。
+- 移除旧 Google API 生图脚本和相关配置，增加 Skill 的 agents/openai.yaml 元数据。
 
-- `outputs/<slug>-wechat.md`，约 1,500 字的公众号 Markdown
-- `outputs/<slug>-blog.md`，含证据、权衡和参考资料的长文 Markdown
-- `assets/<slug>-illustrations/`，2–6 张 16:9 YOYO 正文配图
-- `outputs/<slug>-wechat_排版_<theme>.html`，可直接粘贴到公众号的 HTML 片段
-- `outputs/<slug>-wechat_排版_<theme>_预览.html`，带「复制到公众号」按钮的预览页
+## 标准交付物
+
+| 文件 | 用途 |
+| --- | --- |
+| `outputs/<slug>-wechat.md` | 约 1,500 字的公众号 Markdown |
+| `outputs/<slug>-blog.md` | 更完整的博客长文，包含证据、权衡与参考资料 |
+| `outputs/<slug>-cover-brief.md` | 封面创意简报及上传后的 OSS URL |
+| `assets/<slug>-cover.png` | 包含最终文章原题的 YOYO 封面 |
+| `assets/<slug>-illustrations/` | 两个版本共用的 16:9 正文配图 |
+| `outputs/<slug>-wechat_排版_<theme>.html` | 可复制到公众号的 HTML 片段 |
+| `outputs/<slug>-wechat_排版_<theme>_预览.html` | 带「复制到公众号」按钮的预览页 |
+
+公众号通常使用 2–4 张正文配图，博客使用 3–6 张；共用图片只生成一次。用户不需要封面时可以跳过封面步骤。详细交付规则见 [output-contract.md](skills/yoyo-gzh/references/output-contract.md)。
 
 ## 流程概览
 
 ```mermaid
 flowchart LR
-  A[选题与读者] --> B[研究：社会、人文、经济、技术]
+  A[选题与读者] --> B[社会、人文、经济、技术研究]
   B --> C[问句式标题与论点]
   C --> D[公众号短稿 + 博客长稿]
-  D --> E[Khazix 风格润色]
-  E --> F[YOYO 配图策略、生成与 QA]
-  F --> G[上传 OSS 并替换图片 URL]
+  D --> E[human-writing 润色]
+  E --> F[YOYO 封面 + YOYO v2 正文配图与 QA]
+  F --> G[OSS 上传与图片 URL 回填]
   G --> H[gzh-design 主题排版]
-  H --> I[HTML 校验、预览和交付]
+  H --> I[HTML 校验、预览与交付]
 ```
 
-完整编排规则见 [主工作流](skills/yoyo-gzh/SKILL.md)。每一个配套模块都保留在 `skills/` 下，便于作为 Codex skill 使用或按步骤手工执行。
+## 运行环境与依赖
+
+本仓库是供 Codex 执行的 Skill 工作流包，需要支持内置 imagegen 的环境。它不提供一个独立运行全部步骤的 Python 命令。
+
+仓库内包含 yoyo-gzh、human-writing、yoyo-illustrations、aliyun-oss-upload 和 gzh-design。把需要使用的目录安装到当前环境的技能目录，或让执行环境从本仓库加载它们。
+
+- **imagegen** 使用 Codex 自带的 Skill 与能力，封面和正文配图均不需要 Google API Key。能力不可用时报告生成受阻，不自动切换 API 或 CLI。
+- **handdraw-style-prompter** 是可选外部依赖，本仓库未打包其编号画风资产库。选择 001–279 画风或 SC-008 一类布局时，需完整安装该包；原生 YOYO 模式不需要它。解析规则见 [handdraw-integration.md](skills/yoyo-illustrations/references/handdraw-integration.md)。
+- **Aliyun OSS** 仅在上传图片时需要凭据，使用本仓库保留的环境变量配置方式。
 
 ## 快速开始
 
 ```bash
-git clone https://github.com/<your-account>/yoyo-gzh-publisher.git
-cd yoyo-gzh-publisher
+git clone https://github.com/jackyoung022/yoyo-gzh-workflow.git
+cd yoyo-gzh-workflow
 python3 -m pip install -r requirements.txt
 cp .env.example .env
-set -a; source .env; set +a
 ```
 
-将 `.env` 中的占位符替换为你自己的凭证，然后再执行一次 `set -a; source .env; set +a`，将变量导入当前 shell。不要把 `.env` 提交到 Git。若用 `direnv`、Docker Secrets 或 CI 的 Secrets 管理功能，也可以不创建 `.env`，直接注入下述环境变量。
-
-### 必需配置
-
-| 用途 | 变量 | 何时需要 |
-| --- | --- | --- |
-| YOYO 生图 | `GOOGLE_API_KEY` | 调用 `generate_image.py` 时 |
-| OSS 区域 | `ALIYUN_OSS_REGION` | 上传图片时 |
-| OSS Bucket | `ALIYUN_OSS_BUCKET` | 上传图片时 |
-| OSS AccessKey ID | `ALIYUN_ACCESS_KEY_ID` | 上传图片时 |
-| OSS AccessKey Secret | `ALIYUN_ACCESS_KEY_SECRET` | 上传图片时 |
-
-示例仅展示变量名，不展示任何可用密钥：
+填写 `.env` 中的 OSS 配置后导入当前 shell：
 
 ```bash
-export GOOGLE_API_KEY="replace-with-your-google-api-key"
-export ALIYUN_OSS_REGION="oss-cn-hangzhou"
-export ALIYUN_OSS_BUCKET="your-public-bucket"
-export ALIYUN_ACCESS_KEY_ID="replace-with-your-access-key-id"
-export ALIYUN_ACCESS_KEY_SECRET="replace-with-your-access-key-secret"
+set -a
+source .env
+set +a
 ```
 
-OSS 上传还支持本机私有文件 `skills/aliyun-oss-upload/config.json`。先从 `config.example.json` 复制，文件已被 `.gitignore` 排除。环境变量优先于该文件。
+| 变量 | 用途 |
+| --- | --- |
+| `ALIYUN_OSS_REGION` | OSS 区域，例如 oss-cn-hangzhou |
+| `ALIYUN_OSS_BUCKET` | 提供公开图片访问的 Bucket |
+| `ALIYUN_ACCESS_KEY_ID` | 上传凭据 ID |
+| `ALIYUN_ACCESS_KEY_SECRET` | 上传凭据 Secret |
 
-## 一次完整生产的执行顺序
+也可以从 `skills/aliyun-oss-upload/config.example.json` 创建本机私有 `config.json`；环境变量优先。真实配置文件已被 Git 忽略。凭据缺失时保留本地图片并报告上传受阻。
 
-1. 在 `assets/<slug>-illustrations/` 规划并生成 2–6 张配图。生成说明和提示词模板见 [YOYO 配图技能](skills/yoyo-illustrations/SKILL.md)。
-2. 对每张通过 QA 的图片执行上传，捕获打印出的公开 URL：
-
-   ```bash
-   python3 skills/aliyun-oss-upload/scripts/oss_upload.py \
-     assets/<slug>-illustrations/01-core-question.png \
-     articles/<slug>/01-core-question.png
-   ```
-
-3. 将两个 Markdown 草稿中的本地图片路径都替换为 OSS URL。
-4. 按 [gzh-design](skills/gzh-design/SKILL.md) 选择主题，阅读主题组件库与通用组件库后生成纯 `<section>` HTML。
-5. 对 HTML 执行强制校验，再生成预览页面：
-
-   ```bash
-   python3 skills/gzh-design/scripts/validate_gzh_html.py outputs/<slug>-wechat_排版_石墨极简风(graphite-minimal).html
-   python3 skills/gzh-design/scripts/wrap_preview.py outputs/<slug>-wechat_排版_石墨极简风(graphite-minimal).html
-   ```
-
-6. 运行仓库安全检查后再提交：
-
-   ```bash
-   python3 scripts/check_repository_safety.py
-   git add .
-   git status
-   git commit -m "Initial public workflow package"
-   ```
-
-## 目录说明
+加载 Skill 后，可以使用这样的请求：
 
 ```text
-skills/
-  yoyo-gzh/              # 总编排与交付契约
-  khazix-writer/         # 写作语气与四层自检
-  yoyo-illustrations/    # YOYO 资产、提示词、QA、生成脚本
-  aliyun-oss-upload/     # 使用环境变量的 OSS 上传脚本
-  gzh-design/            # 主题组件、HTML 校验与预览脚本
-scripts/check_repository_safety.py
-.env.example             # 只含变量名和占位符
+用 $yoyo-gzh 把这个选题制作成公众号和博客内容包，生成 YOYO 封面和正文配图，并输出可复制的公众号 HTML。
 ```
 
-## 发布前安全清单
+可选要求包括主题、封面比例、正文画风编号、融合强度及布局编号。
 
-- 运行 `python3 scripts/check_repository_safety.py`，确保通过。
-- 检查 `git status --ignored`，确认 `.env` 与 `skills/aliyun-oss-upload/config.json` 没有被暂存。
-- 在 GitHub 仓库设置中打开 Secret scanning 与 Push protection。
-- 若一个凭证曾被提交、推送或贴进公开讨论，即刻在对应平台撤销并重新生成，删文件或改 Git 历史都不能代替轮换。
-- 用最小权限的 OSS RAM/STS 凭证，并限制可写 Bucket 和前缀。
+## 上传与排版命令
 
-## 许可与归属
+在成稿、图片生成与 QA 完成后，上传每张封面和正文图：
 
-`gzh-design` 组件库以 AGPL-3.0-or-later 许可提供，因此本仓库应以兼容的 AGPL-3.0-or-later 方式发布；完整文本见 [LICENSE](LICENSE)。其余上游来源、YOYO 角色资产和卡兹克写作规范的归属与发布前检查见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+```bash
+python3 skills/aliyun-oss-upload/scripts/oss_upload.py \
+  assets/example-cover.png articles/example/cover.png
+python3 skills/aliyun-oss-upload/scripts/oss_upload.py \
+  assets/example-illustrations/01-core-question.png \
+  articles/example/01-core-question.png
+```
+
+封面 URL 写入简报，正文图片 URL 写入两篇 Markdown。封面默认不作为第一张正文图插入。
+
+按 [gzh-design](skills/gzh-design/SKILL.md) 读取主题与通用组件，再生成 HTML 片段。YOYO 正文图的 alt 仅用作可访问性描述，省略组件中的可见说明段落。主流程默认科技评论用石墨极简风，深度分析用红白色系，实用清单用摸鱼绿；用户指定主题时优先使用。
+
+```bash
+python3 skills/gzh-design/scripts/validate_gzh_html.py \
+  'outputs/example-wechat_排版_石墨极简风(graphite-minimal).html'
+python3 skills/gzh-design/scripts/wrap_preview.py \
+  'outputs/example-wechat_排版_石墨极简风(graphite-minimal).html'
+```
+
+HTML 校验需达到 0 ERROR，正文中有影响的半角标点警告也要修复。打开预览页，点「复制到公众号」，再粘贴到公众号编辑器。
+
+## 仓库检查
+
+```bash
+python3 scripts/check_repository_safety.py
+git diff --check
+git status --ignored
+```
+
+不要提交真实凭据、本机私有配置、`.DS_Store` 或生成的文章与图片。许可与来源说明见 [LICENSE](LICENSE) 和 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
